@@ -2,7 +2,7 @@
 name: deep
 description: "Team category: standard and integration implementation — multi-file features, refactors, bug fixes needing investigation, anything touching shared contracts. Default category when unsure."
 spawns: explore, librarian
-model: ["@team-deep", "anthropic/claude-sonnet-5-5:high", "rg_ai/gpt-6-astra:high"]
+model: ["@team-deep", "anthropic/claude-sonnet-5-5:high", "rg_ai/gpt-6-astra:high", "zai/glm-5.3:max"]
 autoload-skills: team-worker-protocol, team-test-driven-development, team-verification-before-completion
 ---
 

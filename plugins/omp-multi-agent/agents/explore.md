@@ -2,7 +2,7 @@
 name: explore
 description: "Team: fast read-only codebase search. Use for 'where is X', 'how is Y wired', 'which files touch Z'. Fire several in parallel with different angles. Never for reasoning or design."
 tools: read, grep, glob, find, lsp, ast_grep
-model: ["@team-explore", "anthropic/claude-haiku-5-5:low", "zai/glm-5.3-flash:low"]
+model: ["@team-explore", "anthropic/claude-haiku-5-5:low", "zai/glm-5.3-flash:low", "rg_ai/gpt-6-luna:low"]
 read-summarize: false
 ---
 

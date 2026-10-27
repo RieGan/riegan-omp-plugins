@@ -57,17 +57,18 @@ While a plan is executing, the plugin checks the plan whenever the main agent st
 
 | Agent | Role | Default chain (first available wins; later ones are retry fallbacks) |
 |---|---|---|
-| planner (main) | interview + plan | `@team-planner` → opus-5-5:xhigh → gpt-6.1-sol:xhigh |
-| `explore` | codebase search | `@team-explore` → haiku-5-5:low → glm-5.3-flash:low |
-| `librarian` | external docs / OSS | `@team-librarian` → glm-5.3:high → gpt-6-luna:medium |
-| `oracle` | read-only consultant | `@team-oracle` → gpt-6.1-sol:xhigh → opus-5-5:xhigh |
-| `metis` / `momus` | plan critics | `@team-critic` → gpt-6.1-sol:high → opus-5-5:high |
-| `quick` | small, specified changes | `@team-quick` → glm-5.3-flash:high → haiku-5-5:high |
-| `deep` | standard implementation | `@team-deep` → sonnet-5-5:high → gpt-6-astra:high |
-| `ultrabrain` | hard logic | `@team-ultrabrain` → gpt-6.1-sol:xhigh → opus-5-5:xhigh |
-| `visual` | UI/UX | `@team-visual` → opus-5-5:high → gpt-6-astra:high |
+| planner (main) | interview + plan | `@team-planner` → opus-5-5:xhigh → glm-5.3:max → gpt-6.1-sol:high |
+| `explore` | codebase search | `@team-explore` → haiku-5-5:low → glm-5.3-flash:low → gpt-6-luna:low |
+| `librarian` | external docs / OSS | `@team-librarian` → glm-5.3-flash:low → gpt-6-luna:low |
+| `oracle` | read-only consultant | `@team-oracle` → gpt-6.1-sol:xhigh → glm-5.3:max → opus-5-5:xhigh |
+| `metis` | plan gap analysis | `@team-critic` → gpt-6.1-sol:medium → glm-5.3:high → opus-5-5:high |
+| `momus` | strict plan review | `@team-critic` → gpt-6-astra:high → glm-5.3:max → opus-5-5:high |
+| `quick` | small, specified changes | `@team-quick` → glm-5.3-flash:high → haiku-5-5:high → gpt-6-luna:high |
+| `deep` | standard implementation | `@team-deep` → sonnet-5-5:high → gpt-6-astra:high → glm-5.3:max |
+| `ultrabrain` | hard logic | `@team-ultrabrain` → gpt-6-astra:high → gpt-6.1-sol:xhigh → glm-5.3:max → opus-5-5:xhigh |
+| `visual` | UI/UX | `@team-visual` → opus-5-5:high → gpt-6-astra:medium → glm-5.3:max |
 | `writing` | docs/prose | `@team-writing` → sonnet-5-5:medium → glm-5.3:high |
-| `task-reviewer` | per-task + final review | `@team-reviewer` → codex-auto-review:high → gpt-6.1-sol:high |
+| `task-reviewer` | per-task + final review | `@team-reviewer` → gpt-6.1-sol:high |
 
 The concrete defaults reference the providers `anthropic`, `rg_ai`, and `zai`. To remap a role without editing any file, set it in `~/.omp/agent/config.yml` (or use `/model` → Roles):
 

@@ -2,7 +2,7 @@
 name: visual
 description: "Team category: frontend/UI/UX work — components, layout, styling, design systems, accessibility, animations, anything a user sees. Can inspect screenshots/images."
 spawns: explore, librarian
-model: ["@team-visual", "anthropic/claude-opus-5-5:high", "rg_ai/gpt-6-astra:high"]
+model: ["@team-visual", "anthropic/claude-opus-5-5:high", "rg_ai/gpt-6-astra:medium", "zai/glm-5.3:max"]
 autoload-skills: team-worker-protocol, team-verification-before-completion
 ---
 

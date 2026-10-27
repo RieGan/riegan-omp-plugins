@@ -1,6 +1,6 @@
 {
   "name": "omp-multi-agent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Multi-agent, multi-model team for oh-my-pi: interview-driven planning, critic review, category-routed parallel execution with review gates and continuation.",
   "type": "module",
   "license": "MIT",

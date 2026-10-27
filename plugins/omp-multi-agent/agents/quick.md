@@ -2,7 +2,7 @@
 name: quick
 description: "Team category: small, well-specified, low-risk changes — single-file edits, renames, config tweaks, typo/bug fixes with a known cause, boilerplate following an existing pattern. Not for anything needing design judgment."
 spawns: explore
-model: ["@team-quick", "zai/glm-5.3-flash:high", "anthropic/claude-haiku-5-5:high"]
+model: ["@team-quick", "zai/glm-5.3-flash:high", "anthropic/claude-haiku-5-5:high", "rg_ai/gpt-6-luna:high"]
 autoload-skills: team-worker-protocol, team-verification-before-completion
 ---
 
