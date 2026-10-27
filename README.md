@@ -1,103 +1,41 @@
-# omp-multi-agent
+# riegan-omp-plugins
 
-A multi-agent team for [oh-my-pi](https://github.com/can1357/oh-my-pi) (omp ≥ 18.13). Each role runs on its own model, across providers. Planning follows [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent): an interview-driven planner, a gap-analysis critic, and a conductor that runs parallel waves. Execution follows [superpowers](https://github.com/obra/superpowers): workers report a status, every task passes a review gate, the fix loop escalates to stronger models, and every claim needs evidence.
+An [oh-my-pi](https://github.com/can1357/oh-my-pi) plugin marketplace. Each directory under `plugins/` is one plugin.
 
-```mermaid
-flowchart LR
-  U[you] -->|/team-plan| P[Planner<br/>main session]
-  P -->|explore / librarian| P
-  P -->|plan .omp/team/plans/slug.md| M[metis gap analysis]
-  M -->|high accuracy| MO[momus OKAY/REJECT]
-  U -->|/team-execute| C[Conductor<br/>main session]
-  C -->|wave batch| W[quick · deep · ultrabrain · visual · writing]
-  W -->|STATUS report| C
-  C -->|risk-based gate| R[task-reviewer]
-  R -->|NEEDS_FIXES| W
-  C -->|verify · commit · tick| C
-  C -->|F1/F2| R
-```
+| Plugin | Description |
+|---|---|
+| [omp-multi-agent](plugins/omp-multi-agent/README.md) | Planner → critic → conductor team with per-role models across providers. |
 
 ## Install
 
-From GitHub (marketplace):
-
 ```sh
-omp plugin marketplace add <owner>/omp-multi-agent
-omp plugin install omp-multi-agent@omp-multi-agent
+# Private repo: use the SSH URL (your SSH key authenticates the clone).
+omp plugin marketplace add git@github.com:RieGan/riegan-omp-plugins.git
+# Public repo, or after `gh auth setup-git`: the shorthand works too.
+# omp plugin marketplace add RieGan/riegan-omp-plugins
+
+omp plugin install omp-multi-agent@riegan-omp-plugins
 ```
 
-From a local checkout, link it instead. A local-directory marketplace install would copy `node_modules` into the plugin cache.
+To update: `omp plugin marketplace update riegan-omp-plugins`, then `omp plugin upgrade omp-multi-agent@riegan-omp-plugins`.
 
-```sh
-bun install
-omp plugin link .
+## Layout
+
+```
+.omp-plugin/marketplace.json   catalog: one entry per plugin, "source": "./plugins/<name>"
+plugins/<name>/                plugin root: package.json (`omp` manifest), src/, agents/, skills/
+package.json                   Bun workspace (plugins/*) holding the shared dev dependencies
+bunfig.toml                    hoisted linker: node_modules stays at the root, never inside a plugin
+tsconfig.json                  type-checks every plugin
 ```
 
-For a single session without installing: `omp -e /path/to/omp-multi-agent`.
+## Adding a plugin
 
-## Usage
+1. Create `plugins/<name>/package.json` with an `omp` manifest (`extensions`, `settings`, …). List `@oh-my-pi/*` packages under `peerDependencies`; omp provides them at runtime.
+2. Add `agents/`, `skills/`, `src/` as needed.
+3. Add a catalog entry to `.omp-plugin/marketplace.json`: `{ "name": "<name>", "source": "./plugins/<name>", "version": "0.1.0" }`.
+4. Run `bun install`, `bun run typecheck`, `bun test`.
 
-| Command | What it does |
-|---|---|
-| `/team-plan [request]` | Turns on planner mode and switches the main session to the planner model. The planner explores, interviews you with `ask`, keeps a draft in `.omp/team/drafts/`, writes the plan to `.omp/team/plans/<slug>.md`, and runs `metis` on it (plus `momus` if you ask for high accuracy). It can only write under `.omp/team/`. |
-| `/team-execute [slug]` | Restores your model and turns on conductor mode. The conductor runs the plan wave by wave: it delegates each task to its category agent, verifies the result, sends it to review, commits it, and ticks its checkbox. It keeps going until every checkbox is ticked. |
-| `/team-status` | Shows the current mode and per-plan progress. |
-| `/team-stop` | Leaves planner/conductor mode and stops continuation. |
-| `/team-models` | Shows the model each agent resolves to, with its fallbacks. |
-| `ultrawork` / `ulw` in a prompt | Adds the ultrawork orchestration prompt for that run: explore → todo → delegate by category → verify → don't stop. |
+## Releasing
 
-Execution state is kept in `.omp/team/`: `plans/`, `drafts/`, `notepads/<slug>/` (learnings, decisions, issues), and `boulder.json` (the active plan). After a restart, run `/team-execute` to resume; tasks that are already ticked are skipped.
-
-### Continuation
-
-While a plan is executing, the plugin checks the plan whenever the main agent stops. If any `- [ ] N.` / `- [ ] F#.` rows are still unticked, it sends the agent a nudge to continue. It stays quiet in these cases:
-- you interrupted (Esc);
-- the agent replied `TEAM_WAITING` because it is waiting on your answer;
-- `maxStalledNudges` nudges in a row produced no newly ticked task.
-
-## Roster and default models
-
-| Agent | Role | Default chain (first available wins; later ones are retry fallbacks) |
-|---|---|---|
-| planner (main) | interview + plan | `@team-planner` → opus-5-5:xhigh → gpt-6.1-sol:xhigh |
-| `explore` | codebase search | `@team-explore` → haiku-5-5:low → glm-5.3-flash:low |
-| `librarian` | external docs / OSS | `@team-librarian` → glm-5.3:high → gpt-6-luna:medium |
-| `oracle` | read-only consultant | `@team-oracle` → gpt-6.1-sol:xhigh → opus-5-5:xhigh |
-| `metis` / `momus` | plan critics | `@team-critic` → gpt-6.1-sol:high → opus-5-5:high |
-| `quick` | small, specified changes | `@team-quick` → glm-5.3-flash:high → haiku-5-5:high |
-| `deep` | standard implementation | `@team-deep` → sonnet-5-5:high → gpt-6-astra:high |
-| `ultrabrain` | hard logic | `@team-ultrabrain` → gpt-6.1-sol:xhigh → opus-5-5:xhigh |
-| `visual` | UI/UX | `@team-visual` → opus-5-5:high → gpt-6-astra:high |
-| `writing` | docs/prose | `@team-writing` → sonnet-5-5:medium → glm-5.3:high |
-| `task-reviewer` | per-task + final review | `@team-reviewer` → codex-auto-review:high → gpt-6.1-sol:high |
-
-The concrete defaults reference the providers `anthropic`, `rg_ai`, and `zai`. To remap a role without editing any file, set it in `~/.omp/agent/config.yml` (or use `/model` → Roles):
-
-```yaml
-modelRoles:
-  team-deep: rg_ai/gpt-6-astra:high
-  team-planner: anthropic/claude-opus-5-5:max
-```
-
-A configured `@team-*` role always goes first. `task.agentModelOverrides.<agent>` replaces an agent's whole chain.
-
-Implementers autoload the bundled skills: `team-worker-protocol` (scope rules + `STATUS:` report), `team-test-driven-development`, `team-verification-before-completion`, and `team-systematic-debugging` (ultrabrain, oracle).
-
-## Settings
-
-Set these with `omp plugin config` (global) or `.omp/plugin-overrides.json` → `settings["omp-multi-agent"]` (per project):
-
-| Key | Default | Meaning |
-|---|---|---|
-| `disabledProviders` | `""` | Comma-separated providers the team never routes to (e.g. `synthetic`). Matching entries are dropped from every team agent's chain at spawn time, and from the planner's. |
-| `reviewPolicy` | `risk-based` | `risk-based`: tasks marked `Review: skip` (quick, no shared contract) skip the per-task reviewer. `always`: every task is reviewed. |
-| `commitPolicy` | `per-task` | `per-task`: the conductor commits each verified task's files. `none`: nothing is committed. |
-| `maxStalledNudges` | `3` | How many continuation nudges in a row without progress before giving up. |
-| `ultraworkKeyword` | `true` | Turns the `ultrawork`/`ulw` keyword on or off. |
-| `plannerSwitchModel` | `true` | Whether `/team-plan` switches the main model (and restores it afterwards). |
-
-## Notes
-
-- Any extension with a `tool_call` handler turns off omp's speculative task launch. This plugin needs that handler for the planner write guard.
-- Subagents never commit, edit the plan, or spawn implementers. They can only spawn read-only `explore`/`librarian` (and `oracle` for `ultrabrain`).
-- Development: `bun install`, `bun test`, `bunx tsc --noEmit`.
+Bump `version` in both `plugins/<name>/package.json` and that plugin's catalog entry, then push. `omp plugin upgrade` only reinstalls when the catalog version is newer.

@@ -1,0 +1,4 @@
+[install]
+# Keep all deps in the root node_modules so plugin directories stay
+# self-contained source trees (marketplace installs copy them verbatim).
+linker = "hoisted"

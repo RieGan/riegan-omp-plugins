@@ -1,17 +1,17 @@
 {
-  "name": "omp-multi-agent",
+  "name": "riegan-omp-plugins",
   "owner": {
     "name": "RieGan",
     "email": "ganjarparikesit@gmail.com"
   },
   "metadata": {
-    "description": "Multi-agent team plugins for oh-my-pi",
+    "description": "RieGan's oh-my-pi plugins",
     "version": "0.1.0"
   },
   "plugins": [
     {
       "name": "omp-multi-agent",
-      "source": "./",
+      "source": "./plugins/omp-multi-agent",
       "description": "Planner → critic → conductor team with per-role models across providers.",
       "version": "0.1.0",
       "category": "development",
