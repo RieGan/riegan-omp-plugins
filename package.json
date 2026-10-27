@@ -1,0 +1,63 @@
+{
+  "name": "omp-multi-agent",
+  "version": "0.1.0",
+  "description": "Multi-agent, multi-model team for oh-my-pi: interview-driven planning, critic review, category-routed parallel execution with review gates and continuation.",
+  "type": "module",
+  "license": "MIT",
+  "author": "RieGan <ganjarparikesit@gmail.com>",
+  "keywords": ["omp", "oh-my-pi", "omp-plugin", "multi-agent", "orchestration"],
+  "files": ["src", "agents", "skills", "README.md"],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "omp": {
+    "name": "omp-multi-agent",
+    "description": "Planner → critic → conductor team with per-role models across providers.",
+    "extensions": ["./src/index.ts"],
+    "settings": {
+      "disabledProviders": {
+        "type": "string",
+        "default": "",
+        "description": "Comma-separated provider ids the team must never route to (e.g. \"synthetic\"). Applies to team agents and the planner."
+      },
+      "reviewPolicy": {
+        "type": "enum",
+        "values": ["risk-based", "always"],
+        "default": "risk-based",
+        "description": "risk-based: quick tasks skip per-task review; always: every task is reviewed."
+      },
+      "commitPolicy": {
+        "type": "enum",
+        "values": ["per-task", "none"],
+        "default": "per-task",
+        "description": "per-task: conductor commits each verified plan task; none: leave changes uncommitted."
+      },
+      "maxStalledNudges": {
+        "type": "number",
+        "default": 3,
+        "min": 1,
+        "max": 20,
+        "description": "Plan-execution continuation stops after this many consecutive nudges without a newly checked task."
+      },
+      "ultraworkKeyword": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable the `ultrawork` / `ulw` keyword in prompts."
+      },
+      "plannerSwitchModel": {
+        "type": "boolean",
+        "default": true,
+        "description": "Switch the main session to the planner model during /team-plan and restore it afterwards."
+      }
+    }
+  },
+  "peerDependencies": {
+    "@oh-my-pi/pi-coding-agent": ">=18.13.0"
+  },
+  "devDependencies": {
+    "@oh-my-pi/pi-coding-agent": "18.13.1",
+    "@types/bun": "latest",
+    "typescript": "5"
+  }
+}
