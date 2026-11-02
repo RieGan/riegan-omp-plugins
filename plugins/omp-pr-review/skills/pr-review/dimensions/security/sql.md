@@ -1,0 +1,27 @@
+# Security — SQL and database migrations
+
+## Flag
+- Dynamic SQL inside DB code: Postgres `EXECUTE 'SELECT ... ' || arg` or `format('%s', arg)` in PL/pgSQL; MySQL `PREPARE stmt FROM CONCAT(...)`; SQL Server `EXEC('...' + @x)`/`sp_executesql` without parameters. Safe forms: `EXECUTE ... USING arg`, `format('%I', ident)`, `format('%L', lit)`, `quote_ident`, `quote_literal`, `QUOTENAME`. `%s` in `format()` with tainted text is injectable.
+- Application-side raw SQL (outside migrations) built from request data via concatenation/interpolation, including `ORDER BY`/`LIMIT`/column/table names and `IN (...)` lists assembled by string join. Placeholders bind values only; identifiers/sort direction need an allowlist. Confirm the value originates from a request (not a constant map).
+- Postgres `SECURITY DEFINER` function/procedure without `SET search_path = ''` (or a trusted fixed path) — a caller-controlled schema can shadow objects and escalate. Also `SECURITY DEFINER` that skips the caller's tenant/ownership filter, or without `REVOKE EXECUTE ... FROM PUBLIC` (functions are executable by `PUBLIC` by default).
+- Row-level security: new table holding user/tenant data in an exposed schema (e.g. Supabase `public`, PostgREST) with no `ENABLE ROW LEVEL SECURITY` when sibling tables enable it; policies `USING (true)` / `TO public` / `TO anon` granting write; `FOR UPDATE`/`FOR ALL` policy with `USING` but no `WITH CHECK` (lets a user move a row to another tenant/owner); policy using `user_metadata`/client-editable JWT claims for authorization; views over RLS tables without `WITH (security_invoker = true)` (PG 15+) — views run as owner and bypass RLS; table owner bypassing RLS where `FORCE ROW LEVEL SECURITY` is expected.
+- Grants: `GRANT ALL`, `GRANT ... TO PUBLIC`, grants to `anon`/`authenticated` on sensitive tables or on `INSERT/UPDATE/DELETE` where the repo grants read only; `ALTER DEFAULT PRIVILEGES` widening; application role made `SUPERUSER`/`CREATEROLE`/`BYPASSRLS`; app connecting as the schema owner when the repo uses a separate runtime role.
+- Credentials in SQL: `CREATE ROLE/USER ... PASSWORD 'literal'` / `IDENTIFIED BY 'literal'` in a migration that runs in production; seed/INSERT of default admin accounts with known password or unsalted/MD5 hash in a non-dev migration; secrets in `COMMENT`/default values.
+- Plaintext storage of passwords, API keys, or tokens in new columns (`password VARCHAR`, `api_key TEXT`) where the app would compare or return them raw — flag only with the writing/reading code in the diff or visible in the repo. Hashed/encrypted storage is the repo's expected form.
+- Tenant isolation regressions in migrations: dropping/relaxing a `tenant_id`/`owner_id` NOT NULL, FK, or unique-per-tenant constraint; new unique index missing the tenant column on a multi-tenant table (cross-tenant collision/leak); new view/materialized view exposing rows without the tenant predicate.
+- File/OS reach: `COPY ... PROGRAM`, `COPY ... FROM/TO` server file, `pg_read_file`, `lo_import/lo_export`, `CREATE EXTENSION` of untrusted/`plpythonu`/`plperlu`, `LOAD DATA LOCAL INFILE`, `INTO OUTFILE`, `xp_cmdshell`, SQLite `load_extension`/`ATTACH DATABASE` with a tainted path — in application queries, or in migrations running with high privilege.
+- Pooled-connection state leaks: `SET ROLE`, `SET app.tenant_id`/`SET search_path`, or `set_config(..., false)` (session-scoped) in code paths using a connection pool without `SET LOCAL`/reset — the next request inherits the privilege or tenant. Needs the pool use visible.
+- Audit/security triggers or constraints removed by a migration (`DROP TRIGGER` guarding ownership/immutability, `DROP POLICY`) without replacement.
+- Data exposure: `SELECT *`/view returning password hash, tokens, or PII columns to a client-facing query or an API-bound view; adding a sensitive column to a table already exposed through `SELECT *` endpoints or PostgREST/GraphQL auto-generated APIs.
+
+## Safe (do not flag)
+- Parameterized statements (`$1`, `?`, `:name`, `%s` as a driver placeholder with a params tuple — not Python `%` formatting) and prepared statements; ORM query builders.
+- `format('%I')`/`%L`, `quote_ident`/`quote_literal`, `EXECUTE ... USING`; dynamic SQL built only from constants, enum values, or an allowlisted map.
+- `SECURITY DEFINER` with `SET search_path` pinned and schema-qualified references; `SECURITY INVOKER` views/functions.
+- Grants/roles inside local-dev, docker-compose init, test, fixture, or seed files not applied to production (check the path and how the repo runs it); `CREATE ROLE` with a password supplied via variable/`\getenv`/secret manager.
+- Missing indexes, slow queries, lock-heavy `ALTER TABLE`, destructive `DROP COLUMN` and irreversible migrations — performance/correctness own them, not security.
+- Missing RLS on tables not exposed to untrusted roles (internal/analytics/audit-only schemas, tables behind a backend that authorizes in code per the repo's pattern).
+- `GRANT SELECT` on non-sensitive reference/lookup tables to `PUBLIC`/`anon` when sibling reference tables do the same.
+- Hash columns already using bcrypt/argon2 values; UUID primary keys exposed in URLs (authorization decides, not unguessability).
+- Missing audit columns/logging, missing encryption at rest/column encryption when the repo has no such convention.
+- Wildcard `LIKE '%' || $1 || '%'` with a bound parameter — pattern metacharacters are not injection.

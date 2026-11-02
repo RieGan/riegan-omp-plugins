@@ -5,6 +5,7 @@ An [oh-my-pi](https://github.com/can1357/oh-my-pi) plugin marketplace. Each dire
 | Plugin | Description |
 |---|---|
 | [omp-multi-agent](plugins/omp-multi-agent/README.md) | Planner → critic → conductor team with per-role models across providers. |
+| [omp-pr-review](plugins/omp-pr-review/README.md) | High-precision PR/MR review: scope interview, per-dimension specialists, verified findings, GitHub/GitLab posting. |
 
 ## Install
 

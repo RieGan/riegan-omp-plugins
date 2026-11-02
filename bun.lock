@@ -13,6 +13,14 @@
     },
     "plugins/omp-multi-agent": {
       "name": "omp-multi-agent",
+      "version": "0.1.1",
+      "peerDependencies": {
+        "@oh-my-pi/pi-agent-core": ">=18.13.0",
+        "@oh-my-pi/pi-coding-agent": ">=18.13.0",
+      },
+    },
+    "plugins/omp-pr-review": {
+      "name": "omp-pr-review",
       "version": "0.1.0",
       "peerDependencies": {
         "@oh-my-pi/pi-agent-core": ">=18.13.0",
@@ -246,6 +254,8 @@
     "object-keys": ["object-keys@1.1.1", "", {}, "sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA=="],
 
     "omp-multi-agent": ["omp-multi-agent@workspace:plugins/omp-multi-agent"],
+
+    "omp-pr-review": ["omp-pr-review@workspace:plugins/omp-pr-review"],
 
     "onnxruntime-common": ["onnxruntime-common@1.30.0", "", {}, "sha512-7fdVWjAID1dVhH/G8qK3APARunV4VkBFoCQAP7qp4Wkab0mrorvmc+sqiT+mKXOzDqdjN5j+/Z9nb4gzNPWcyA=="],
 
