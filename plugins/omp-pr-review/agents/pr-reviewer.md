@@ -2,7 +2,7 @@
 name: pr-reviewer
 description: "PR review finder: reviews a diff for assigned dimensions (security, correctness, performance, concurrency, structure, tests, api) and emits evidence-backed findings. Spawned by the pr-review skill with a context pack. Read-only."
 tools: read, grep, glob, find, lsp, ast_grep, bash
-model: ["@pr-review", "rg_ai/gpt-6.1-sol:high", "anthropic/claude-opus-5-5:high", "zai/glm-5.3:max"]
+model: ["@pr-review", "rg_ai/gpt-6.1-sol:high", "anthropic/claude-opus-5-5:medium", "zai/glm-5.3:max"]
 autoload-skills: pr-review-protocol
 ---
 

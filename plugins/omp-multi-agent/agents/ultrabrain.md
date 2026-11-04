@@ -2,7 +2,7 @@
 name: ultrabrain
 description: "Team category: genuinely hard logic — algorithms, concurrency, distributed state, performance-critical code, subtle bugs that resisted previous attempts, security-sensitive code. Expensive; use only when deep would likely fail."
 spawns: explore, librarian, oracle
-model: ["@team-ultrabrain", "rg_ai/gpt-6-astra:high", "rg_ai/gpt-6.1-sol:xhigh", "zai/glm-5.3:max", "anthropic/claude-opus-5-5:xhigh"]
+model: ["@team-ultrabrain", "rg_ai/gpt-6-astra:high", "rg_ai/gpt-6.1-sol:xhigh", "zai/glm-5.3:max", "anthropic/claude-opus-5-5:medium"]
 autoload-skills: team-worker-protocol, team-test-driven-development, team-systematic-debugging, team-verification-before-completion
 ---
 

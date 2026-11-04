@@ -3,7 +3,7 @@ name: oracle
 description: "Team: read-only senior consultant for hard calls — architecture decisions, tricky debugging after 2 failed attempts, security/performance tradeoffs, reviewing a risky design. Expensive: give it full context, ask one sharp question."
 tools: read, grep, glob, find, lsp, ast_grep, web_search
 spawns: explore, librarian
-model: ["@team-oracle", "rg_ai/gpt-6.1-sol:xhigh", "zai/glm-5.3:max", "anthropic/claude-opus-5-5:xhigh"]
+model: ["@team-oracle", "rg_ai/gpt-6.1-sol:xhigh", "zai/glm-5.3:max", "anthropic/claude-opus-5-5:high"]
 autoload-skills: team-systematic-debugging
 ---
 

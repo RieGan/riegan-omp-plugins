@@ -3,7 +3,7 @@ import * as path from "node:path";
 import type { ExtensionModelQuery } from "@oh-my-pi/pi-coding-agent";
 
 /** Main-session planner chain; the `@team-planner` role, when configured, wins. */
-export const PLANNER_MODELS = ["@team-planner", "anthropic/claude-opus-5-5:xhigh", "zai/glm-5.3:max", "rg_ai/gpt-6.1-sol:high"];
+export const PLANNER_MODELS = ["@team-planner", "anthropic/claude-opus-5-5:medium", "zai/glm-5.3:max", "rg_ai/gpt-6.1-sol:high"];
 
 const THINKING_LEVELS: Record<string, true> = {
 	off: true,
