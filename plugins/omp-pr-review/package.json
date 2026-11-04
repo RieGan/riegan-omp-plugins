@@ -1,6 +1,6 @@
 {
   "name": "omp-pr-review",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "High-precision PR review for oh-my-pi: scope interview, size/risk-adaptive specialist fan-out, independent verification, GitHub/GitLab posting.",
   "type": "module",
   "license": "MIT",

@@ -13,7 +13,7 @@
       "name": "omp-multi-agent",
       "source": "./plugins/omp-multi-agent",
       "description": "Planner → critic → conductor team with per-role models across providers.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "category": "development",
       "keywords": ["multi-agent", "orchestration", "planning"]
     },
@@ -21,7 +21,7 @@
       "name": "omp-pr-review",
       "source": "./plugins/omp-pr-review",
       "description": "High-precision PR review: specialists per dimension, verified findings, optional GitHub/GitLab posting.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "category": "development",
       "keywords": ["code-review", "pull-request", "security", "performance"]
     }
