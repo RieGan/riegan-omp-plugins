@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review a GitHub PR, GitLab MR, or uncommitted changes for security, correctness, performance, concurrency, structure, tests, API/migrations, and more; verified high-precision findings, optional posting. Use for "review PR 123", "review my changes", "security review this MR", or /pr-review.
+description: Review a GitHub PR, GitLab MR, or uncommitted changes for security, correctness, performance, concurrency, structure, tests, API/migrations, and more; verified high-precision findings, a merge-safety tier, a human-review recommendation, optional posting. Use for "review PR 123", "review my changes", "is this safe to merge", "security review this MR", or /pr-review.
 ---
 
 # PR review (orchestrator)
@@ -21,7 +21,7 @@ Scope fields and defaults:
 
 1. Take every field the request states or clearly implies ("security review of !45" → GitLab, focus=security; "quick look" → quick; `--post`, `--focus`, `--quick`, `--deep` flags).
 2. Infer the rest from the repo with cheap reads: `git status --porcelain`, `git remote -v` (github vs gitlab host), `gh pr view --json number,state` or `glab mr view -F json` for the current branch.
-3. Target still ambiguous (e.g. dirty tree AND current branch has an open PR, or no target found), or the request is vague ("review this")? → one `ask` call with only the unresolved fields, options built from what you found, recommended default marked. Never ask what the repo or request already answers. User says "don't know"/"you pick" → defaults.
+3. Only the target may warrant a question: still ambiguous after inference (e.g. dirty tree AND current branch has an open PR, or no target found) → one `ask` call for the target alone, options built from what you found, recommended default marked. Every other field silently takes its default or inferred value — never ask about focus, depth, checks, or output. User says "don't know"/"you pick" → defaults.
 4. State the resolved scope in one line before continuing.
 
 ## 2. Acquire
@@ -73,10 +73,13 @@ One `task` batch, agent `pr-verifier`, context = context.md + diff path.
 - Prior comments `P…` (bot or human, unresolved) go to a verifier for RESOLVED/STILL PRESENT/OUTDATED (batch them, ≤ 10 per verifier).
 - Keep CONFIRMED findings with verifier confidence ≥ threshold (default 80). Apply the verifier's severity/line corrections. Rejected or below-threshold → "Declined" with the reason. Nits beyond 3 → drop.
 
-## 7. Report
-Render with `skill://pr-review/references/report.md`. Verdict rules: any Critical/Important → `Request changes`; only Minor/Nit → `Approve with comments`; none → `Approve`. Failing checks caused by the diff count as findings. Keep the report self-contained; no tool chatter.
+## 7. Assess merge safety
+Apply `skill://pr-review/references/merge-safety.md` to the verified findings, check results, and triage tags: a merge-safety tier (SAFE / SAFE-WITH-FIXES / RISKY / BLOCK) and a human-review recommendation (required / recommended / not needed, with expertise areas). Deterministic table lookup — no new judgment, uncertainty escalates upward. Advisory only: never approve or merge on the user's behalf.
 
-## 8. Post (optional)
+## 8. Report
+Render with `skill://pr-review/references/report.md`, including the merge-safety and human-review lines from step 7. Verdict rules: any Critical/Important → `Request changes`; only Minor/Nit → `Approve with comments`; none → `Approve`. Failing checks caused by the diff count as findings. Keep the report self-contained; no tool chatter.
+
+## 9. Post (optional)
 Only for a PR/MR, only after the report, only on explicit user confirmation:
 1. `ask`: post all / choose findings / don't post. Default: don't post if no findings.
 2. Draft the comments, then post exactly once following `skill://pr-review/references/posting.md` (one review/one discussion per finding, fingerprint markers, `COMMENT` event — never approve or request changes on the user's behalf unless they ask).
@@ -90,5 +93,6 @@ fanout: { lines: 400, files: 10 }
 ignore: ["gen/**", "**/*.snap"]   # excluded from review
 dimensions: [security]            # always-on dimensions
 severity: { "missing authz": Critical }   # overrides by finding kind
+human_required: [auth, crypto, migration] # replaces the human-required tag list (merge-safety.md)
 ```
 Body: free-form rules. Quote the rule when reporting a violation (dimension `rules`).

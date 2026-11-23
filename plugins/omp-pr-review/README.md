@@ -36,9 +36,9 @@ Requires `git`. Install `gh` for GitHub and `glab` for GitLab, both authenticate
 | `--post` | Pre-selects posting. You still confirm the drafted comments first. |
 | "security review my changes", "review PR 88 for perf" | The `pr-review` skill matches in plain chat and reads the scope from your wording. |
 
-The review asks you only about scope fields that neither your request nor the repo answers, all in a single batched `ask`. If you answer "you pick", it uses the defaults.
+Scope resolves automatically from your wording and the repo. Only an ambiguous target (e.g. a dirty tree *and* an open PR on the branch) triggers a single `ask`; every other field takes its default.
 
-**Output:** verdict (`Request changes` / `Approve with comments` / `Approve`), then findings sorted by severity. Each finding has `path:line`, confidence, a concrete trigger, and a fix. After that come intent compliance, the status of prior comments (RESOLVED / STILL PRESENT / OUTDATED), checks, what was checked, and **Declined** (what was considered and why it was set aside).
+**Output:** verdict (`Request changes` / `Approve with comments` / `Approve`), a **merge-safety tier** (`SAFE` / `SAFE-WITH-FIXES` / `RISKY` / `BLOCK`), and a **human-review recommendation** (`required` / `recommended` / `not needed`, with the expertise areas such as security or platform). Both are advisory — the review never approves or merges for you — and computed by a deterministic rubric (`skills/pr-review/references/merge-safety.md`): uncertainty escalates upward, auth/crypto/migration/money/public-api/infra changes always require a human, and AI-generated diffs are never "not needed". Then findings sorted by severity: each has `path:line`, confidence, a concrete trigger, and a fix. After that come intent compliance, the status of prior comments (RESOLVED / STILL PRESENT / OUTDATED), checks, what was checked, and **Declined** (what was considered and why it was set aside).
 
 **Posting:** nothing is posted until you confirm. GitHub gets one `COMMENT` review with inline comments. GitLab gets one DiffNote per finding plus a summary note. Each comment carries a fingerprint, so re-reviews don't repeat earlier comments.
 

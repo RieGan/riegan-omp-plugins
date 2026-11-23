@@ -5,6 +5,8 @@ Order findings by severity, then file. Omit empty sections except Verdict, Check
 ```markdown
 ## PR review: <title or "working tree"> (<target>)
 **Verdict: Request changes | Approve with comments | Approve** — <1–2 sentences: the deciding issues, or why it is safe>
+**Merge safety: SAFE | SAFE-WITH-FIXES | RISKY | BLOCK** — <1 line: deciding findings, tags, caps, or checks>
+**Human review: required | recommended | not needed**[ · areas: security, backend + data] — <1 line why>
 <scope line: focus · depth · mode · finders N · verifiers M · models: finder <model>, verifier <model>>
 
 ### Findings
@@ -36,6 +38,6 @@ Order findings by severity, then file. Omit empty sections except Verdict, Check
 - `<path:line>` — <considered issue> — <why set aside: below threshold (score), refuted by verifier (reason), pre-existing, out of scope>
 ```
 
-Zero findings: Verdict `Approve`, then `No issues met the bar (confidence ≥ <threshold>).` followed by Checks/Checked/Declined, so the user sees what was examined.
+Zero findings: Verdict `Approve`, then `No issues met the bar (confidence ≥ <threshold>).` followed by Checks/Checked/Declined, so the user sees what was examined. Merge-safety and human-review lines still appear (`references/merge-safety.md`).
 
 Length discipline: Minor findings get 1-line description and fix; Nits are a single line `Nit: path:line — rule "<quoted>" — fix`.
