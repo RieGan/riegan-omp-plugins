@@ -1,4 +1,5 @@
 import { getPluginSettings } from "@oh-my-pi/pi-coding-agent/extensibility/plugins/loader";
+import { DEFAULT_PLANNER_MODELS } from "./models";
 
 export const PLUGIN_NAME = "omp-multi-agent";
 
@@ -9,6 +10,8 @@ export interface TeamConfig {
 	maxStalledNudges: number;
 	ultraworkKeyword: boolean;
 	plannerSwitchModel: boolean;
+	/** Planner chain in attempt order; the `plannerModels` setting replaces the built-in default when set. */
+	plannerModels: string[];
 }
 
 /** Defaults mirror `package.json#omp.settings`; the lockfile only stores values the user set. */
@@ -19,22 +22,30 @@ const DEFAULTS: TeamConfig = {
 	maxStalledNudges: 3,
 	ultraworkKeyword: true,
 	plannerSwitchModel: true,
+	plannerModels: DEFAULT_PLANNER_MODELS,
 };
 
+function splitList(value: unknown): string[] {
+	return typeof value === "string"
+		? value
+				.split(",")
+				.map(entry => entry.trim())
+				.filter(Boolean)
+		: [];
+}
+
 export function parseConfig(raw: Record<string, unknown>): TeamConfig {
-	const providers = typeof raw.disabledProviders === "string" ? raw.disabledProviders : "";
+	const plannerModels = splitList(raw.plannerModels);
 	const stalls = Number(raw.maxStalledNudges);
 	return {
-		disabledProviders: providers
-			.split(",")
-			.map(p => p.trim())
-			.filter(Boolean),
+		disabledProviders: splitList(raw.disabledProviders),
 		reviewPolicy: raw.reviewPolicy === "always" ? "always" : DEFAULTS.reviewPolicy,
 		commitPolicy: raw.commitPolicy === "none" ? "none" : DEFAULTS.commitPolicy,
 		maxStalledNudges: Number.isFinite(stalls) && stalls >= 1 ? Math.floor(stalls) : DEFAULTS.maxStalledNudges,
 		ultraworkKeyword: typeof raw.ultraworkKeyword === "boolean" ? raw.ultraworkKeyword : DEFAULTS.ultraworkKeyword,
 		plannerSwitchModel:
 			typeof raw.plannerSwitchModel === "boolean" ? raw.plannerSwitchModel : DEFAULTS.plannerSwitchModel,
+		plannerModels: plannerModels.length > 0 ? plannerModels : DEFAULTS.plannerModels,
 	};
 }
 

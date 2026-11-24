@@ -13,7 +13,7 @@
     },
     "plugins/omp-multi-agent": {
       "name": "omp-multi-agent",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "peerDependencies": {
         "@oh-my-pi/pi-agent-core": ">=18.13.0",
         "@oh-my-pi/pi-coding-agent": ">=18.13.0",

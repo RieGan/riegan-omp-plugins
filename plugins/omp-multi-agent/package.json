@@ -1,6 +1,6 @@
 {
   "name": "omp-multi-agent",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Multi-agent, multi-model team for oh-my-pi: interview-driven planning, critic review, category-routed parallel execution with review gates and continuation.",
   "type": "module",
   "license": "MIT",
@@ -45,6 +45,11 @@
         "type": "boolean",
         "default": true,
         "description": "Switch the main session to the planner model during /team-plan and restore it afterwards."
+      },
+      "plannerModels": {
+        "type": "string",
+        "default": "",
+        "description": "Comma-separated planner model chain (e.g. \"@team-planner, anthropic/claude-opus-5-5:xhigh\"). Empty uses the built-in chain."
       }
     }
   },

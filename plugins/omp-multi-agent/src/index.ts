@@ -3,7 +3,13 @@ import * as path from "node:path";
 import type { AgentMessage } from "@oh-my-pi/pi-agent-core";
 import type { ExtensionAPI, ExtensionContext } from "@oh-my-pi/pi-coding-agent";
 import { loadConfig } from "./config";
-import { describeChain, filterDisabled, loadTeamAgentModels, PLANNER_MODELS } from "./models";
+import {
+	DEFAULT_PLANNER_MODELS,
+	describeChain,
+	filterDisabled,
+	loadTeamAgentModels,
+	readAgentModelOverrides,
+} from "./models";
 import { conductorPrompt, plannerPrompt, ultraworkPrompt } from "./prompts";
 import { isInsideTeamDir, listPlans, readBoulder, readPlanProgress, teamPaths, writeBoulder } from "./state";
 
@@ -83,7 +89,7 @@ export default function ompMultiAgent(pi: ExtensionAPI) {
 		const next: Mode = { kind: "planning" };
 		let note = "";
 		if (config.plannerSwitchModel) {
-			const target = describeChain(PLANNER_MODELS, ctx.models, config.disabledProviders).find(
+			const target = describeChain(config.plannerModels, ctx.models, config.disabledProviders).find(
 				entry => entry.status === "ok",
 			);
 			const current = ctx.models.current();
@@ -222,7 +228,7 @@ export default function ompMultiAgent(pi: ExtensionAPI) {
 
 	// ── Commands ───────────────────────────────────────────────────────────────
 	pi.registerCommand("team-plan", {
-		description: "Enter team planner mode (interview → plan → metis review). Optional: initial request.",
+		description: "Enter team planner mode (interview → plan → plan-analyst review). Optional: initial request.",
 		handler: async (args, ctx) => {
 			if (mode.kind === "executing") {
 				ctx.ui.notify(`A plan is executing (${mode.slug}). /team-stop first.`, "warning");
@@ -314,19 +320,30 @@ export default function ompMultiAgent(pi: ExtensionAPI) {
 		handler: async (_args, ctx) => {
 			const config = await loadConfig(ctx.cwd);
 			const rows: string[] = [];
-			const roster: [string, readonly string[]][] = [["planner (main)", PLANNER_MODELS], ...TEAM_AGENTS];
-			for (const [name, patterns] of roster) {
+			const overrides = readAgentModelOverrides();
+			const roster: [string, readonly string[], string?][] = [
+				config.plannerModels === DEFAULT_PLANNER_MODELS
+					? ["planner (main)", config.plannerModels]
+					: ["planner (main)", config.plannerModels, "plannerModels setting"],
+			];
+			for (const [name, patterns] of TEAM_AGENTS) {
+				const override = overrides.get(name);
+				roster.push(override ? [name, override, "task.agentModelOverrides"] : [name, patterns]);
+			}
+			for (const [name, patterns, source] of roster) {
 				const chain = describeChain(patterns, ctx.models, config.disabledProviders);
 				const chosen = chain.find(entry => entry.status === "ok");
 				const fallbacks = chain
 					.filter(entry => entry !== chosen)
 					.map(entry => (entry.status === "ok" ? entry.label : `${entry.label} (${entry.status})`));
 				rows.push(
-					`${name.padEnd(15)} → ${chosen?.label ?? "NONE AVAILABLE"}${fallbacks.length ? `   fallbacks: ${fallbacks.join(", ")}` : ""}`,
+					`${name.padEnd(15)} → ${chosen?.label ?? "NONE AVAILABLE"}${fallbacks.length ? `   fallbacks: ${fallbacks.join(", ")}` : ""}${source ? `   [${source}]` : ""}`,
 				);
 			}
 			if (config.disabledProviders.length) rows.push(`Disabled providers: ${config.disabledProviders.join(", ")}`);
-			rows.push("Override any agent with modelRoles.team-<role> (see /model → Roles) or task.agentModelOverrides.");
+			rows.push(
+				"Override with modelRoles.team-<role> (see /model → Roles), task.agentModelOverrides.<agent>, or the plannerModels plugin setting.",
+			);
 			ctx.ui.notify(rows.join("\n"), "info");
 		},
 	});
