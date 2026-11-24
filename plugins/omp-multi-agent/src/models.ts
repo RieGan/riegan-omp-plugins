@@ -1,9 +1,36 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type { ExtensionModelQuery } from "@oh-my-pi/pi-coding-agent";
+import { normalizeModelPatternList } from "@oh-my-pi/pi-coding-agent/config/model-resolver";
+import { Settings } from "@oh-my-pi/pi-coding-agent/config/settings";
+import { cfgTaskAgentModelOverrides } from "@oh-my-pi/pi-coding-agent/task/settings";
 
-/** Main-session planner chain; the `@team-planner` role, when configured, wins. */
-export const PLANNER_MODELS = ["@team-planner", "anthropic/claude-opus-5-5:medium", "zai/glm-5.3:max", "rg_ai/gpt-6.1-sol:high"];
+/** Built-in main-session planner chain; the `plannerModels` plugin setting replaces it. */
+export const DEFAULT_PLANNER_MODELS = [
+	"@team-planner",
+	"anthropic/claude-opus-5-5:medium",
+	"zai/glm-5.3:max",
+	"rg_ai/gpt-6.1-sol:high",
+];
+
+/**
+ * Core's `task.agentModelOverrides`, normalized to pattern lists. Core gives a non-empty
+ * entry precedence over the agent's frontmatter `model`, so `/team-models` must too.
+ */
+export function readAgentModelOverrides(): Map<string, string[]> {
+	let raw: Record<string, string | string[]>;
+	try {
+		raw = cfgTaskAgentModelOverrides.get(Settings.instance);
+	} catch {
+		return new Map();
+	}
+	const overrides = new Map<string, string[]>();
+	for (const [agent, value] of Object.entries(raw)) {
+		const patterns = normalizeModelPatternList(value);
+		if (patterns.length > 0) overrides.set(agent, patterns);
+	}
+	return overrides;
+}
 
 const THINKING_LEVELS: Record<string, true> = {
 	off: true,

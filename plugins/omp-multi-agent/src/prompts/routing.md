@@ -7,9 +7,9 @@ Each agent below runs on its own model (shown live by `/team-models`). Dispatch 
 |---|---|---|
 | `explore` | codebase search: where/how/which files; fire 2–5 in parallel with different angles | reasoning, design, edits |
 | `librarian` | external docs, library/API behavior for the installed version, OSS source | repo-internal questions |
-| `oracle` | hard decisions: architecture, risky design, bug that survived 2 attempts, security/perf tradeoffs | routine questions, anything explore can answer |
-| `metis` | gap analysis of a written plan (always, before execution) | code review |
-| `momus` | strict OKAY/REJECT plan review (only when high accuracy is requested) | — |
+| `consultant` | hard decisions: architecture, risky design, bug that survived 2 attempts, security/perf tradeoffs | routine questions, anything explore can answer |
+| `plan-analyst` | gap analysis of a written plan (always, before execution) | code review |
+| `plan-reviewer` | strict OKAY/REJECT plan review (only when high accuracy is requested) | — |
 | `task-reviewer` | independent review of a finished task or the whole change | implementation |
 
 ## Implementation categories
@@ -17,7 +17,7 @@ Each agent below runs on its own model (shown live by `/team-models`). Dispatch 
 |---|---|---|
 | `quick` | fully specified, low-risk, ≤3 files, follows an existing pattern | `deep` |
 | `deep` | default: multi-file features, refactors, investigated bug fixes, shared contracts | `ultrabrain` |
-| `ultrabrain` | algorithms, concurrency, state machines, perf-critical, security-sensitive, or a task that already failed in `deep` | `oracle` consult |
+| `ultrabrain` | algorithms, concurrency, state machines, perf-critical, security-sensitive, or a task that already failed in `deep` | `consultant` consult |
 | `visual` | UI/UX, components, styling, accessibility, anything a user sees | `deep` for non-UI logic |
 | `writing` | docs, READMEs, changelogs, user-facing copy | `deep` if code changes needed |
 

@@ -26,4 +26,4 @@ State one hypothesis: "X is the root cause because Y." Make the smallest change 
 3. Verify the test passes and the surrounding suite is green.
 
 ## Escalate
-After 3 failed fix attempts, stop. The problem is likely architectural or your model of the system is wrong. Report what you tried, what you observed, and what you now suspect (or ask `oracle` if you can spawn it).
+After 3 failed fix attempts, stop. The problem is likely architectural or your model of the system is wrong. Report what you tried, what you observed, and what you now suspect (or ask `consultant` if you can spawn it).
